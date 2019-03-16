@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 ##########################
 # cribdrag - An interactive crib dragging tool
@@ -8,27 +8,44 @@
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 ##########################
+# Changelog
+# 2019-03-16 Ported to Python 3 ~ Robbe Van der Gucht
+##########################
 
-import sys
 import argparse
-
-def sxor(s1,s2):    
-    # convert strings to a list of character pair tuples
-    # go through each tuple, converting them to ASCII code (ord)
-    # perform exclusive or on the ASCII code
-    # then convert the result back to ASCII (chr)
-    # merge the resulting array of characters as a string
-    return ''.join(chr(ord(a) ^ ord(b)) for a,b in zip(s1,s2))
+from binascii import unhexlify
 
 parser = argparse.ArgumentParser(description='xorstrings is a utility which comes with cribdrag, the interactive crib dragging tool. xorstrings takes two ASCII hex encoded strings and XORs them together. This can be useful when cryptanalyzing ciphertext produced by the One Time Pad algorithm or a stream cipher when keys are reused, as one can XOR two ciphertexts together and then crib drag across the result, which is both plaintexts XORed together.')
-parser.add_argument('data1', help='Data encoded in an ASCII hex format (ie. ABC would be 414243)')
-parser.add_argument('data2', help='Data encoded in an ASCII hex format (ie. ABC would be 414243)')
+parser.add_argument('-h1', '--hex1', help='Data encoded in an ASCII hex format (ie. -h1 ABC would be 414243)')
+parser.add_argument('-h2', '--hex2', help='Data encoded in an ASCII hex format (ie. -h2 ABC would be 414243)')
+parser.add_argument('-f1', '--file1', help='File with raw bytes')
+parser.add_argument('-f2', '--file2', help='File with raw bytes')
+parser.add_argument('-s', '--separator', 
+    help='Separate hex bytes (ie. \':\' would return 41:42:43',
+    default='')
 args = parser.parse_args()
 
-s1 = args.data1.decode('hex')
-s2 = args.data2.decode('hex')
+bstr1 = b""
+bstr2 = b""
 
-s3 = sxor(s1, s2)
+if args.hex1:
+    bstr1 = unhexlify(args.hex1)
+elif args.file1:
+    with open(args.file1, 'rb') as fh:
+        bstr1 = fh.read()
+else:
+    raise Exception("Must provide either --hex1 or --file1 argument")
 
-print s3.encode('hex')
+if args.hex2:
+    bstr2 = unhexlify(args.hex2)
+elif args.file2:
+    with open(args.file2, 'rb') as fh:
+        bstr2 = fh.read()
+else:
+    raise Exception("Must provide either --hex1 or --file1 argument")
 
+result = b''
+for b1, b2 in zip(bstr1, bstr2):
+    result += bytes([b1 ^ b2])
+
+print((args.separator).join("{:02x}".format(b) for b in result))

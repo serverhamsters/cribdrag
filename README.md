@@ -3,6 +3,8 @@ Released after LOL Bitcoin party at DEF CON 21
 Daniel Crowley <dcrowley@trustwave.com>
 http://www.trustwave.com
 
+Ported to Python 3 by Robbe Van der Gucht.
+
 INTRODUCTION
 ============
 
@@ -19,13 +21,14 @@ This script can be used to cryptanalyze:
 REQUIREMENTS
 ============
 
-python 2.x
+python 3.x
 
 USAGE
 =====
 
 ~~~
-python xorstrings.py <ascii hex encoded data> <ascii hex encoded data>
+python xorstrings.py -h1 <ascii hex encoded data> -h2 <ascii hex encoded data>
+python xorstrings.py -f1 <binary file> -f2 <binary file>
 python cribdrag.py [-c charset] <ascii hex encoded ciphertext>
 ~~~
 
